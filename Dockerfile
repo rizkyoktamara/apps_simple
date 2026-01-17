@@ -1,13 +1,11 @@
-FROM golang:1.22
+FROM golang:1.22-alpine
 
-WORKDIR /app
+WORKDIR /usr/local/go/src/app
 
-COPY go.mod ./
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
+RUN go build -o server ./app/main.go
 
-RUN go build -o app
-
-EXPOSE 8080
-
-CMD ["./app"]
+CMD ["./server"]
