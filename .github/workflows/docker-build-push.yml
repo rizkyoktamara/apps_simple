@@ -3,7 +3,7 @@ name: CI Self Hosted
 on: [push]
 
 env:
-  IMAGE_NAME: nhkwardana30/cicd-githubnew
+  IMAGE_NAME: rizkyoktamara/cicd
   CONTAINER_NAME: service-backend-1
   REGISTRY: docker.io
 
