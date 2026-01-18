@@ -1,49 +1,52 @@
-name: Build & Deploy Docker App
+name: CI Self Hosted
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ "master" ]
+on: [push]
+
+env:
+  IMAGE_NAME: nhkwardana30/cicd-githubnew
+  CONTAINER_NAME: service-backend-1
+  REGISTRY: docker.io
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
-
-    env:
-      IMAGE_NAME: rizkyoktamara/cicd
+    runs-on: [self-hosted, linux]
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      - name: Check Docker
-        run: |
-          docker version
-          docker info
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Network check Docker Hub
-        run: |
-          curl -I https://registry-1.docker.io/v2/
-          curl -I https://auth.docker.io/token
+    - name: Build Docker image
+      run: docker build -t $REGISTRY/${{ env.IMAGE_NAME }}:latest .
 
-      # - name: Verify secrets exist
-      #   run: |
-      #     if [ -z "$DOCKERHUB_USERNAME" ]; then echo "USERNAME EMPTY"; else echo "USERNAME OK"; fi
-      #     if [ -z "$DOCKERHUB_TOKEN" ]; then echo "TOKEN EMPTY"; else echo "TOKEN OK"; fi
-      #   env:
-      #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Push image to DockerHub
+      run: docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Create SSH key file
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
-      # - name: Build Docker image
-      #   run: |
-      #     docker build -t $IMAGE_NAME:latest .
+    - name: SSH Deploy to VM
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          echo "Logging into DockerHub..."
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      # - name: Push Docker image
-      #   run: |
-      #     docker push $IMAGE_NAME:latest
+          echo "Pulling latest image..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
+
+          echo "Stopping & removing old container..."
+          docker stop service-backend-1 || true
+          docker rm service-backend-1 || true
+
+          echo "Running new container..."
+          docker run -d --name service-backend-1 -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
+        EOF
+
