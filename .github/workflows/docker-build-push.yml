@@ -4,14 +4,16 @@ on:
   push:
     branches: [ "master" ]
 
-env:
-  IMAGE_NAME:rizkyoktamara/cicd
-  CONTAINER_NAME:devops-cicd
-  REGISTRY:docker.io
+
 
 jobs:
   build-and-push:
     runs-on: self-hosted
+
+    env:
+      IMAGE_NAME: rizkyoktamara/cicd
+      CONTAINER_NAME: devops-cicd
+      REGISTRY: docker.io
 
     steps:
       - name: Checkout repo
