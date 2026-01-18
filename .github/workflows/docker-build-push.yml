@@ -17,10 +17,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # - name: Debug secrets
+      #   run: |
+      #     echo "USERNAME SET? ${{ secrets.DOCKERHUB_USERNAME != '' }}"
+      #     echo "TOKEN SET? ${{ secrets.DOCKERHUB_TOKEN != '' }}"
       - name: Debug secrets
         run: |
-          echo "USERNAME SET? ${{ secrets.DOCKERHUB_USERNAME != '' }}"
-          echo "TOKEN SET? ${{ secrets.DOCKERHUB_TOKEN != '' }}"
+          echo "USERNAME length: ${#DOCKERHUB_USERNAME}"
+          echo "TOKEN length: ${#DOCKERHUB_TOKEN}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
 
       - name: Login to Docker Hub
