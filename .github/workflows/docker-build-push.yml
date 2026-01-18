@@ -1,15 +1,20 @@
-name: Docker CI
+name: Build & Deploy Docker App
 
 on:
   push:
     branches: [ "master" ]
 
+env:
+  IMAGE_NAME:rizkyoktamara/cicd
+  CONTAINER_NAME:devops-cicd
+  REGISTRY:docker.io
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Login to Docker Hub
@@ -19,7 +24,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t apps-simple:latest .
+        run: docker build -t $REGISTRY/${{env.IMAGE_NAME}}:latest
 
       - name: Push Docker image
-        run: docker push apps-simple:latest
+        run: docker push $REGISTRY/${{env.IMAGE_NAME}}:latest
