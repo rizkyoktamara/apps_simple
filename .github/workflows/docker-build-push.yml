@@ -36,5 +36,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            rizkyoktamara/apps_simple:latest
-            rizkyoktamara/apps_simple:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/apps-simple:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/apps-simple:${{ github.sha }}
