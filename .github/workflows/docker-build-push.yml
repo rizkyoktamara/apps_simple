@@ -1,6 +1,9 @@
-name: CI Self Hosted
+name: Build & Deploy Docker App
 
-on: [push]
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
 
 env:
   IMAGE_NAME: rizkyoktamara/cicd
@@ -49,4 +52,5 @@ jobs:
           echo "Running new container..."
           docker run -d --name service-backend-1 -p 4000:4000 ${{ secrets.DOCKERHUB_USERNAME }}/cicd-githubnew:latest
         EOF
+
 
