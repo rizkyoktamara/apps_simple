@@ -60,6 +60,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Debug Docker username
+        run: echo "Docker username: ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKERHUB_TOKEN }}"
       
       - name: Login Docker Hub
         uses: docker/login-action@v3
