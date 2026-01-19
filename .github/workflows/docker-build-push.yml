@@ -56,13 +56,10 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Verify Docker login
-        run: docker info | grep Username
       
       - name: Login Docker Hub
         uses: docker/login-action@v3
